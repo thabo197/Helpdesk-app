@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HelpDesk — IT Support Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f3ef;--surf:#fff;--surf2:#f9f8f5;--bdr:#e4e2db;--bdr2:#d0cec6;
+  --tx:#1a1916;--tx2:#5a5852;--tx3:#9a9890;
+  --blue:#2563eb;--blue-bg:#eff6ff;--blue-tx:#1d4ed8;
+  --red:#dc2626;--red-bg:#fef2f2;--red-tx:#b91c1c;
+  --amber:#d97706;--amber-bg:#fffbeb;--amber-tx:#92400e;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-tx:#15803d;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-tx:#6d28d9;
+  --r:8px;--rl:12px;--rxl:16px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+
+/* ── AUTH ── */
+#auth-screen{align-items:center;justify-content:center;background:var(--bg)}
+.auth-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rxl);padding:40px;width:100%;max-width:420px;box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.auth-logo-icon{width:36px;height:36px;background:var(--tx);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.auth-tabs{display:flex;gap:2px;background:var(--bg);border-radius:var(--r);padding:3px;margin-bottom:24px}
+.auth-tab{flex:1;padding:8px;text-align:center;border-radius:6px;cursor:pointer;font-size:13px;font-weight:500;color:var(--tx2);transition:all .15s}
+.auth-tab.active{background:var(--surf);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.form-section{display:none}.form-section.active{display:block}
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px;letter-spacing:.3px;text-transform:uppercase}
+.form-input{width:100%;padding:10px 14px;border:1px solid var(--bdr2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--tx);background:var(--surf);outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.form-select{width:100%;padding:10px 14px;padding-right:32px;border:1px solid var(--bdr2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--tx);background:var(--surf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5852' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 12px center;outline:none;appearance:none;cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-textarea{width:100%;padding:10px 14px;border:1px solid var(--bdr2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--tx);background:var(--surf);resize:vertical;min-height:90px;outline:none}
+.form-textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.btn-primary{width:100%;padding:11px;background:var(--tx);color:#fff;border:none;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;margin-top:4px}
+.btn-primary:hover{opacity:.85}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.err{color:var(--red);font-size:12px;margin-top:8px;min-height:18px}
+
+/* ── APP LAYOUT ── */
+#app-screen{flex-direction:row}
+.sidebar{width:220px;min-width:220px;background:var(--surf);border-right:1px solid var(--bdr);display:flex;flex-direction:column;padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto;flex-shrink:0}
+.sb-logo{display:flex;align-items:center;gap:8px;padding:0 20px 20px;border-bottom:1px solid var(--bdr);margin-bottom:8px}
+.sb-logo-icon{width:28px;height:28px;background:var(--tx);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-logo-text{font-size:15px;font-weight:600;letter-spacing:-.3px}
+.sb-section{padding:0 12px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);color:var(--tx2);font-size:13.5px;cursor:pointer;transition:background .12s,color .12s;user-select:none;position:relative}
+.nav-item:hover{background:var(--bg);color:var(--tx)}
+.nav-item.active{background:var(--bg);color:var(--tx);font-weight:500}
+.nav-item svg{flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.nav-badge{margin-left:auto;background:var(--red-bg);color:var(--red-tx);font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.nb-blue{background:var(--blue-bg);color:var(--blue-tx)}
+.sb-footer{margin-top:auto;padding:14px 12px 0;border-top:1px solid var(--bdr)}
+.user-pill{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r);cursor:pointer;transition:background .12s}
+.user-pill:hover{background:var(--bg)}
+.avatar{border-radius:50%;background:var(--tx);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;flex-shrink:0}
+.av-sm{width:28px;height:28px;font-size:11px}
+.av-md{width:36px;height:36px;font-size:14px}
+.av-lg{width:56px;height:56px;font-size:20px}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:11px;color:var(--tx3)}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.page{display:none;padding:32px;max-width:1120px}
+.page.active{display:block}
+.page-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.page-title{font-size:22px;font-weight:600;letter-spacing:-.4px}
+.page-sub{font-size:13px;color:var(--tx2);margin-top:3px}
+
+/* ── STATS ── */
+.stats{display:grid;gap:14px;margin-bottom:24px}
+.s4{grid-template-columns:repeat(4,1fr)}.s3{grid-template-columns:repeat(3,1fr)}.s2{grid-template-columns:repeat(2,1fr)}
+.stat{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:18px 20px}
+.stat-lbl{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:600;letter-spacing:-.8px}
+.stat-sub{font-size:12px;color:var(--tx3);margin-top:4px}
+.c-blue .stat-val{color:var(--blue)}.c-red .stat-val{color:var(--red)}.c-amber .stat-val{color:var(--amber)}.c-green .stat-val{color:var(--green)}
+
+/* ── CARD ── */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);margin-bottom:20px}
+.card-hdr{padding:15px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-title{font-size:14px;font-weight:600}
+.card-body{padding:20px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .12s;border:none;white-space:nowrap}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-dark{background:var(--tx);color:#fff}.btn-dark:hover{opacity:.85}
+.btn-out{background:transparent;color:var(--tx2);border:1px solid var(--bdr2)}.btn-out:hover{background:var(--bg);color:var(--tx)}
+.btn-red{background:var(--red-bg);color:var(--red-tx)}.btn-red:hover{background:#fee2e2}
+.btn-green{background:var(--green-bg);color:var(--green-tx)}.btn-green:hover{background:#dcfce7}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-open{background:var(--blue-bg);color:var(--blue-tx)}
+.b-progress{background:var(--amber-bg);color:var(--amber-tx)}
+.b-pending{background:var(--purple-bg);color:var(--purple-tx)}
+.b-resolved{background:var(--green-bg);color:var(--green-tx)}
+.b-closed{background:#f1f0ec;color:#4b4a47}
+.b-critical{background:var(--red-bg);color:var(--red-tx)}
+.b-high{background:#fff7ed;color:#c2410c}
+.b-medium{background:var(--amber-bg);color:var(--amber-tx)}
+.b-low{background:var(--green-bg);color:var(--green-tx)}
+.role-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.rb-user{background:var(--blue-bg);color:var(--blue-tx)}
+.rb-technician{background:var(--purple-bg);color:var(--purple-tx)}
+.rb-admin{background:#fdf4ff;color:#7e22ce}
+.tag{background:var(--surf2);color:var(--tx2);padding:2px 7px;border-radius:4px;font-size:11px;font-weight:600}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);border-bottom:1px solid var(--bdr)}
+.tbl td{padding:12px 14px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl.clickable tbody tr{cursor:pointer}.tbl.clickable tbody tr:hover td{background:var(--surf2)}
+.mono{font-family:'DM Mono',monospace;font-size:12px;color:var(--tx3)}
+
+/* ── FILTERS ── */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.fi{padding:8px 12px;border:1px solid var(--bdr2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--tx);background:var(--surf);outline:none}
+.fi:focus{border-color:var(--blue)}
+.fi-search{flex:1;min-width:160px}
+.fi-sel{padding-right:28px;background:var(--surf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5852' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 8px center;appearance:none;cursor:pointer}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--surf);border-radius:var(--rxl);width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:0 4px 24px rgba(0,0,0,.12)}
+.modal-wide{max-width:700px}
+.modal-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:sticky;top:0;background:var(--surf);z-index:1}
+.modal-title{font-size:16px;font-weight:600}
+.modal-sub{font-size:12px;color:var(--tx3);margin-top:2px}
+.modal-x{width:28px;height:28px;background:var(--bg);border:none;border-radius:var(--r);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--tx2);flex-shrink:0}
+.modal-x:hover{background:var(--bdr)}
+.modal-body{padding:20px 24px 24px}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--bdr);display:flex;gap:8px;justify-content:flex-end}
+
+/* ── TICKET DETAIL ── */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.df-label{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.df-value{font-size:13.5px;color:var(--tx)}
+.desc-box{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;margin-bottom:18px}
+.ctrl-box{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:18px}
+.ctrl-label{font-size:11px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cf label{font-size:11px;color:var(--tx3);display:block;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.ctrl-sel{width:100%;padding:7px 28px 7px 10px;border:1px solid var(--bdr2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--tx);background:var(--surf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235a5852' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 8px center;outline:none;appearance:none;cursor:pointer}
+
+/* ── COMMENTS ── */
+.comment{padding:12px 14px;background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:8px}
+.comment.internal{border-left:3px solid var(--purple);background:var(--purple-bg)}
+.cm-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}
+.cm-author{font-size:12px;font-weight:600}
+.cm-time{font-size:11px;color:var(--tx3)}
+.cm-body{font-size:13px;line-height:1.5;white-space:pre-wrap}
+.cm-input-row{display:flex;gap:8px;margin-top:12px;align-items:flex-end}
+.cm-ta{flex:1;padding:10px 12px;border:1px solid var(--bdr2);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;outline:none;min-height:60px;color:var(--tx);background:var(--surf)}
+.cm-ta:focus{border-color:var(--blue)}
+
+/* ── ATTACHMENTS ── */
+.attach-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:6px}
+.attach-ext{width:32px;height:32px;background:var(--blue-bg);color:var(--blue-tx);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0}
+.attach-info{flex:1;min-width:0}
+.attach-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.attach-size{font-size:11px;color:var(--tx3)}
+.upload-zone{border:2px dashed var(--bdr2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .12s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:var(--blue-bg)}
+.upload-zone input{display:none}
+
+/* ── SLA BADGES ── */
+.sla{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.sla-ok{background:var(--green-bg);color:var(--green-tx)}
+.sla-warning{background:var(--amber-bg);color:var(--amber-tx)}
+.sla-critical,.sla-breached{background:var(--red-bg);color:var(--red-tx)}
+.sla-met{background:var(--green-bg);color:var(--green-tx)}
+.sla-none{background:#f1f0ec;color:#4b4a47}
+.pulse{animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── AUDIT ── */
+.audit-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr);font-size:12px}
+.audit-item:last-child{border-bottom:none}
+.audit-time{color:var(--tx3);flex-shrink:0;min-width:60px}
+.audit-txt{color:var(--tx2)}
+.audit-txt strong{color:var(--tx)}
+
+/* ── NOTIFICATION ── */
+.notif{display:flex;gap:10px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--bdr);transition:background .1s}
+.notif:hover{background:var(--surf2)}
+.notif.unread{background:var(--blue-bg)}
+.notif-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:5px}
+.notif-dot.read{background:transparent}
+.notif-title{font-size:13px;font-weight:500}
+.notif-body{font-size:12px;color:var(--tx2);margin-top:2px}
+.notif-time{font-size:11px;color:var(--tx3);margin-top:2px}
+
+/* ── BAR CHART ── */
+.bar-track{height:6px;background:var(--bdr);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .4s}
+.sparkbar{flex:1;background:var(--blue);border-radius:3px 3px 0 0;transition:opacity .2s;cursor:default}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--tx);color:#fff;padding:12px 18px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:9999;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none}
+.toast.show{opacity:1;transform:none}
+.toast.err-toast{background:var(--red)}
+
+/* ── SPINNER ── */
+.spin{width:18px;height:18px;border:2px solid var(--bdr);border-top-color:var(--tx);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{text-align:center;padding:40px;color:var(--tx3)}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:48px 24px;color:var(--tx3)}
+.empty p{font-size:14px;font-weight:500;color:var(--tx2);margin-top:8px}
+.empty span{font-size:13px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){.sidebar{display:none}.s4,.s3{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}.page{padding:16px}}
+</style>
+</head>
+<body>
+
+<!-- ── AUTH SCREEN ─────────────────────────────────────────────────── -->
+<div id="auth-screen" class="screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <span style="font-size:18px;font-weight:600;letter-spacing:-.3px">HelpDesk</span>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchTab('login')">Sign In</div>
+      <div class="auth-tab" onclick="switchTab('register')">Create Account</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="form-section active" id="tab-login">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="l-email" placeholder="you@company.com" autocomplete="email"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="err" id="l-err"></div>
+      <button class="btn-primary" id="l-btn" onclick="doLogin()">Sign In</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="form-section" id="tab-register">
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="r-name" placeholder="Jane Smith"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="r-email" placeholder="jane@company.com"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Department</label><input class="form-input" id="r-dept" placeholder="Finance"></div>
+        <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="r-pass" placeholder="Min 8 chars"></div>
+      </div>
+      <div class="err" id="r-err"></div>
+      <button class="btn-primary" id="r-btn" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP SCREEN ──────────────────────────────────────────────────── -->
+<div id="app-screen" class="screen">
+  <nav class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <span class="sb-logo-text">HelpDesk</span>
+    </div>
+    <div class="sb-section" id="nav-links"></div>
+    <div class="sb-footer">
+      <div class="user-pill" onclick="navigate('profile')">
+        <div class="avatar av-sm" id="sb-av"></div>
+        <div class="user-info"><div class="user-name" id="sb-name"></div><div class="user-role" id="sb-role"></div></div>
+        <div onclick="event.stopPropagation();doLogout()" title="Sign out" style="color:var(--tx3);cursor:pointer;flex-shrink:0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="page" id="page-dashboard"></div>
+    <div class="page" id="page-tickets"></div>
+    <div class="page" id="page-my-queue"></div>
+    <div class="page" id="page-new-ticket"></div>
+    <div class="page" id="page-notifications"></div>
+    <div class="page" id="page-users"></div>
+    <div class="page" id="page-reports"></div>
+    <div class="page" id="page-profile"></div>
+  </main>
+</div>
+
+<!-- ── MODALS ──────────────────────────────────────────────────────── -->
+<div class="overlay" id="ov-ticket">
+  <div class="modal modal-wide">
+    <div class="modal-hdr"><div><div class="modal-title" id="td-id"></div><div class="modal-sub" id="td-date"></div></div><button class="modal-x" onclick="closeOv('ov-ticket')">×</button></div>
+    <div class="modal-body" id="td-body"></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-new-ticket">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Submit a Ticket</div><button class="modal-x" onclick="closeOv('ov-new-ticket')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">Subject</label><input class="form-input" id="nt-subj" placeholder="Brief description of the issue"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="nt-cat"><option>Hardware</option><option>Software</option><option>Network</option><option>Access</option><option>Email</option><option>Security</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="nt-pri"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="nt-desc" style="min-height:120px" placeholder="Describe the issue in detail…"></textarea></div>
+      <div class="err" id="nt-err"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-out" onclick="closeOv('ov-new-ticket')">Cancel</button><button class="btn btn-dark" onclick="submitTicket()">Submit Ticket</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-add-user">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Add User</div><button class="modal-x" onclick="closeOv('ov-add-user')">×</button></div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="au-name" placeholder="Jane Smith"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" id="au-email" placeholder="jane@company.com"></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="au-pass" placeholder="Min 8 characters"></div><div class="form-group"><label class="form-label">Department</label><input class="form-input" id="au-dept" placeholder="IT"></div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">Role</label><select class="form-select" id="au-role"><option value="user">User</option><option value="technician">Technician</option><option value="admin">Admin</option></select></div><div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="au-phone" placeholder="+1 555 000 0000"></div></div>
+      <div class="err" id="au-err"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-out" onclick="closeOv('ov-add-user')">Cancel</button><button class="btn btn-dark" onclick="createUser()">Create User</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// API
+// ═══════════════════════════════════════════════════
+let token = localStorage.getItem('hd_token');
+let me = null;
+
+async function api(method, path, body, isForm) {
+  const opts = { method, headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) } };
+  if (body && !isForm) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  else if (isForm) opts.body = body;
+  const r = await fetch('/api' + path, opts);
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Request failed');
+  return d;
+}
+const GET   = p       => api('GET',    p);
+const POST  = (p, b)  => api('POST',   p, b);
+const PATCH = (p, b)  => api('PATCH',  p, b);
+const DEL   = p       => api('DELETE', p);
+
+// ═══════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register')));
+  document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+async function doLogin() {
+  const email = V('l-email'), pass = V('l-pass');
+  setErr('l-err', '');
+  if (!email || !pass) return setErr('l-err', 'Email and password are required.');
+  setBusy('l-btn', true, 'Signing in…');
+  try {
+    const d = await POST('/auth/login', { email, password: pass });
+    token = d.token; me = d.user;
+    localStorage.setItem('hd_token', token);
+    launchApp();
+  } catch(e) { setErr('l-err', e.message); }
+  finally { setBusy('l-btn', false, 'Sign In'); }
+}
+
+async function doRegister() {
+  const name=V('r-name'),email=V('r-email'),pass=V('r-pass'),dept=V('r-dept');
+  setErr('r-err','');
+  if (!name||!email||!pass) return setErr('r-err','Name, email and password are required.');
+  if (pass.length < 8) return setErr('r-err','Password must be at least 8 characters.');
+  setBusy('r-btn',true,'Creating account…');
+  try {
+    const d = await POST('/auth/register',{name,email,password:pass,department:dept});
+    token=d.token; me=d.user;
+    localStorage.setItem('hd_token',token);
+    launchApp();
+  } catch(e) { setErr('r-err',e.message); }
+  finally { setBusy('r-btn',false,'Create Account'); }
+}
+
+function doLogout() {
+  POST('/auth/logout',{}).catch(()=>{});
+  token=null; me=null;
+  localStorage.removeItem('hd_token');
+  show('auth-screen'); hide('app-screen');
+  document.getElementById('l-email').value='';
+  document.getElementById('l-pass').value='';
+}
+
+// ═══════════════════════════════════════════════════
+// APP INIT
+// ═══════════════════════════════════════════════════
+const ICONS = {
+  home:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+  ticket:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3l-4 4-4-4"/></svg>`,
+  plus:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  inbox:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,
+  bell:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
+  user:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  users:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  chart:`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+};
+
+function buildNav() {
+  const role = me.role;
+  const items = [
+    { id:'dashboard', label:'Dashboard', icon:'home' },
+    ...(role==='user'?[{id:'new-ticket',label:'New Ticket',icon:'plus'}]:[]),
+    { id:'tickets', label: role==='user'?'My Tickets':'All Tickets', icon:'ticket' },
+    ...(role==='technician'?[{id:'my-queue',label:'My Queue',icon:'inbox'}]:[]),
+    ...(role==='admin'?[{id:'users',label:'Users',icon:'users'},{id:'reports',label:'Reports',icon:'chart'}]:[]),
+    { id:'notifications', label:'Notifications', icon:'bell', badgeId:'notif-badge' },
+    { id:'profile', label:'Profile', icon:'user' },
+  ];
+  document.getElementById('nav-links').innerHTML = items.map(it=>`
+    <div class="nav-item" id="nav-${it.id}" onclick="navigate('${it.id}')">
+      ${ICONS[it.icon]}<span>${it.label}</span>
+      ${it.badgeId?`<span class="nav-badge nb-blue" id="${it.badgeId}" style="display:none">0</span>`:''}
+    </div>`).join('');
+}
+
+function launchApp() {
+  hide('auth-screen'); show('app-screen');
+  const ini = me.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sb-av').textContent = ini;
+  document.getElementById('sb-name').textContent = me.name;
+  document.getElementById('sb-role').textContent = me.role.charAt(0).toUpperCase()+me.role.slice(1);
+  buildNav();
+  navigate('dashboard');
+  pollNotifs();
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const p=document.getElementById('page-'+page), n=document.getElementById('nav-'+page);
+  if(p) p.classList.add('active');
+  if(n) n.classList.add('active');
+  renderPage(page);
+}
+
+function renderPage(p) {
+  const map = {
+    dashboard: renderDashboard, tickets: renderTickets,
+    'my-queue': renderMyQueue, 'new-ticket': renderNewTicketPage,
+    notifications: renderNotifications, users: renderUsers,
+    reports: renderReports, profile: renderProfile,
+  };
+  if (map[p]) map[p]();
+}
+
+// ═══════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════
+async function renderDashboard() {
+  const el = Q('page-dashboard');
+  el.innerHTML = loading();
+  try {
+    if (me.role === 'admin') {
+      const r = await GET('/reports/overview');
+      const s = r.summary;
+      el.innerHTML = `
+        <div class="page-hdr"><div><div class="page-title">Dashboard</div><div class="page-sub">System overview</div></div></div>
+        <div class="stats s4">
+          ${stat('Open',s.open,'Awaiting action','c-blue')}${stat('In Progress',s.in_progress,'','c-amber')}
+          ${stat('Resolved',s.resolved,'','c-green')}${stat('Critical',s.critical,'Active','c-red')}
+        </div>
+        <div class="stats s4">
+          ${stat('Total',s.total)}${stat('SLA Breached',s.sla_breached,'Active',s.sla_breached>0?'c-red':'')}
+          ${stat('Unassigned',s.unassigned,'Open tickets',s.unassigned>0?'c-amber':'')}
+          ${stat('Resolution',s.resolution_rate+'%','All time','c-green')}
+        </div>
+        <div class="two-col">
+          ${barChart('By Category',r.byCategory,'category','count',s.total)}
+          ${barChart('By Status',r.byStatus,'status','count',s.total)}
+        </div>
+        <div class="card"><div class="card-hdr"><div class="card-title">Technician Workload</div></div>
+        <div class="card-body" style="padding-top:8px">${r.techLoad.map(t=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--bdr)">
+            <div class="avatar av-sm" style="background:var(--purple)">${t.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+            <span style="flex:1;font-size:13.5px">${esc(t.name)}</span>
+            <span class="badge ${t.open_count>5?'b-critical':t.open_count>2?'b-medium':'b-low'}">${t.open_count} open</span>
+          </div>`).join('')}</div></div>
+        <div class="card"><div class="card-hdr"><div class="card-title">Activity — last 14 days</div></div>
+        <div class="card-body">${sparkline(r.trend)}</div></div>`;
+    } else if (me.role === 'technician') {
+      const [st, tix] = await Promise.all([GET('/reports/my-stats'), GET('/tickets?assigned_to=me&per_page=50')]);
+      const unassigned = await GET('/tickets?status=Open&assigned_to=none&per_page=20');
+      el.innerHTML = `
+        <div class="page-hdr"><div><div class="page-title">Welcome, ${esc(me.name.split(' ')[0])}</div><div class="page-sub">Technician Dashboard</div></div></div>
+        <div class="stats s4">
+          ${stat('My Open',st.open,'','c-blue')}${stat('In Progress',st.in_progress,'','c-amber')}
+          ${stat('Resolved',st.resolved,'By me','c-green')}${stat('SLA Breached',st.breached,'My tickets',st.breached>0?'c-red':'')}
+        </div>
+        <div class="two-col">
+          <div class="card"><div class="card-hdr"><div class="card-title">My Active Tickets</div><button class="btn btn-dark btn-sm" onclick="navigate('my-queue')">Full Queue →</button></div>
+          ${miniTable(tix.tickets.filter(t=>!['Resolved','Closed'].includes(t.status)).slice(0,6),'Nothing in your queue')}</div>
+          <div class="card"><div class="card-hdr"><div class="card-title">Unassigned <span class="badge b-open" style="margin-left:4px">${unassigned.total}</span></div></div>
+          ${miniTable(unassigned.tickets,'No unassigned tickets')}</div>
+        </div>`;
+    } else {
+      const d = await GET('/tickets?per_page=50');
+      const mine = d.tickets;
+      el.innerHTML = `
+        <div class="page-hdr"><div><div class="page-title">Welcome, ${esc(me.name.split(' ')[0])}</div><div class="page-sub">Your support portal</div></div>
+        <button class="btn btn-dark" onclick="openOv('ov-new-ticket')">+ New Ticket</button></div>
+        <div class="stats s3">
+          ${stat('Open',mine.filter(t=>['Open','In Progress'].includes(t.status)).length,'Active','c-blue')}
+          ${stat('Resolved',mine.filter(t=>t.status==='Resolved').length,'','c-green')}
+          ${stat('Total',mine.length)}
+        </div>
+        <div class="card"><div class="card-hdr"><div class="card-title">Recent Tickets</div><button class="btn btn-dark btn-sm" onclick="navigate('tickets')">View All →</button></div>
+        ${miniTable(mine.slice(0,6),'No tickets yet — submit your first request')}</div>`;
+    }
+  } catch(e) { el.innerHTML = errBlock(e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// TICKETS LIST
+// ═══════════════════════════════════════════════════
+let tF = { search:'', status:'', priority:'', category:'', page:1 };
+
+function renderTickets() {
+  const el = Q('page-tickets');
+  el.innerHTML = `
+    <div class="page-hdr">
+      <div><div class="page-title">${me.role==='user'?'My Tickets':'All Tickets'}</div><div class="page-sub">Manage support requests</div></div>
+      ${me.role==='user'?`<button class="btn btn-dark" onclick="openOv('ov-new-ticket')">+ New Ticket</button>`:''}
+    </div>
+    <div class="card">
+      <div class="card-body" style="padding-bottom:10px">
+        <div class="filters">
+          <input class="fi fi-search" id="tf-search" placeholder="Search tickets…" value="${tF.search}" oninput="tF.search=this.value;tF.page=1;fetchTickets()">
+          ${fsel('tf-status','All Statuses','status',['Open','In Progress','Pending User','Resolved','Closed'])}
+          ${fsel('tf-priority','All Priorities','priority',['Critical','High','Medium','Low'])}
+          ${me.role!=='user'?fsel('tf-category','All Categories','category',['Hardware','Software','Network','Access','Email','Security','Other']):''}
+        </div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="tbl clickable">
+          <thead><tr><th>ID</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>SLA</th><th>Updated</th></tr></thead>
+          <tbody id="tbl-body"><tr><td colspan="7" class="loading"><div class="spin"></div></td></tr></tbody>
+        </table>
+      </div>
+      <div id="tbl-pages" style="padding:12px 16px;border-top:1px solid var(--bdr);display:flex;gap:8px;align-items:center"></div>
+    </div>`;
+  ['tf-status','tf-priority','tf-category'].forEach(id => {
+    const el2 = document.getElementById(id);
+    if (el2) el2.addEventListener('change', () => { tF[id.replace('tf-','')] = el2.value; tF.page=1; fetchTickets(); });
+  });
+  fetchTickets();
+}
+
+async function fetchTickets() {
+  const tbody = document.getElementById('tbl-body');
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="7" class="loading"><div class="spin"></div></td></tr>`;
+  const p = new URLSearchParams({ per_page:20, page:tF.page });
+  if (tF.search)   p.set('search',   tF.search);
+  if (tF.status)   p.set('status',   tF.status);
+  if (tF.priority) p.set('priority', tF.priority);
+  if (tF.category) p.set('category', tF.category);
+  try {
+    const d = await GET('/tickets?'+p);
+    tbody.innerHTML = d.tickets.length ? d.tickets.map(t=>`
+      <tr onclick="openTicket('${t.id}')">
+        <td><span class="mono">${t.id.slice(0,8)}</span></td>
+        <td><div style="font-weight:500;font-size:13.5px">${esc(t.subject)}</div><div style="font-size:12px;color:var(--tx3)">${t.category} · ${esc(t.creator_name||'')}</div></td>
+        <td><span class="tag">${t.category}</span></td>
+        <td>${priBadge(t.priority)}</td>
+        <td>${stBadge(t.status)}</td>
+        <td>${slaBadge(t.sla)}</td>
+        <td style="font-size:12px;color:var(--tx3)">${rel(t.updated_at)}</td>
+      </tr>`).join('') : `<tr><td colspan="7"><div class="empty"><p>No tickets found</p><span>Try adjusting your filters</span></div></td></tr>`;
+
+    const pg = document.getElementById('tbl-pages');
+    if (pg) pg.innerHTML = d.pages > 1 ? `
+      <button class="btn btn-out btn-sm" ${tF.page<=1?'disabled':''} onclick="tF.page=${tF.page-1};fetchTickets()">← Prev</button>
+      <span style="font-size:13px;color:var(--tx2)">Page ${d.page} of ${d.pages} · ${d.total} tickets</span>
+      <button class="btn btn-out btn-sm" ${tF.page>=d.pages?'disabled':''} onclick="tF.page=${tF.page+1};fetchTickets()">Next →</button>`
+      : `<span style="font-size:12px;color:var(--tx3)">${d.total} ticket${d.total!==1?'s':''}</span>`;
+  } catch(e) { tbody.innerHTML = `<tr><td colspan="7">${errBlock(e.message)}</td></tr>`; }
+}
+
+// ═══════════════════════════════════════════════════
+// MY QUEUE (tech)
+// ═══════════════════════════════════════════════════
+async function renderMyQueue() {
+  const el = Q('page-my-queue');
+  el.innerHTML = loading();
+  try {
+    const d = await GET('/tickets?assigned_to=me&per_page=100');
+    const sorted = d.tickets.sort((a,b) => ({Critical:0,High:1,Medium:2,Low:3}[a.priority]||3)-({Critical:0,High:1,Medium:2,Low:3}[b.priority]||3));
+    el.innerHTML = `
+      <div class="page-hdr"><div><div class="page-title">My Queue</div><div class="page-sub">${d.total} ticket${d.total!==1?'s':''} assigned to you</div></div></div>
+      <div class="card"><div style="overflow-x:auto">
+        <table class="tbl clickable">
+          <thead><tr><th>ID</th><th>Subject</th><th>Priority</th><th>Status</th><th>SLA</th><th>Requester</th><th>Updated</th></tr></thead>
+          <tbody>${sorted.length?sorted.map(t=>`
+            <tr onclick="openTicket('${t.id}')">
+              <td><span class="mono">${t.id.slice(0,8)}</span></td>
+              <td><div style="font-weight:500">${esc(t.subject)}</div><div style="font-size:12px;color:var(--tx3)">${t.category}</div></td>
+              <td>${priBadge(t.priority)}</td><td>${stBadge(t.status)}</td><td>${slaBadge(t.sla)}</td>
+              <td style="font-size:13px;color:var(--tx2)">${esc(t.creator_name||'')}</td>
+              <td style="font-size:12px;color:var(--tx3)">${rel(t.updated_at)}</td>
+            </tr>`).join(''):`<tr><td colspan="7"><div class="empty"><p>Queue is empty</p></div></td></tr>`}
+          </tbody>
+        </table>
+      </div></div>`;
+  } catch(e) { el.innerHTML = errBlock(e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// NEW TICKET PAGE
+// ═══════════════════════════════════════════════════
+function renderNewTicketPage() {
+  Q('page-new-ticket').innerHTML = `
+    <div class="page-hdr"><div><div class="page-title">New Ticket</div><div class="page-sub">Submit a new IT support request</div></div></div>
+    <div style="max-width:580px"><div class="card"><div class="card-body">
+      <div class="form-group"><label class="form-label">Subject</label><input class="form-input" id="ntp-subj" placeholder="Brief description of the issue"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Category</label><select class="form-select" id="ntp-cat"><option>Hardware</option><option>Software</option><option>Network</option><option>Access</option><option>Email</option><option>Security</option><option>Other</option></select></div>
+        <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="ntp-pri"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-textarea" id="ntp-desc" style="min-height:140px" placeholder="Describe the issue in detail…"></textarea></div>
+      <div class="err" id="ntp-err"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px"><button class="btn btn-dark" onclick="submitTicketPage()">Submit Ticket</button></div>
+    </div></div></div>`;
+}
+
+async function submitTicketPage() {
+  const subj=V('ntp-subj'),desc=V('ntp-desc');
+  setErr('ntp-err','');
+  if (!subj||!desc) return setErr('ntp-err','Subject and description are required.');
+  try {
+    await POST('/tickets',{subject:subj,description:desc,category:V('ntp-cat')||'Other',priority:V('ntp-pri')||'Medium'});
+    toast('Ticket submitted!'); navigate('tickets');
+  } catch(e) { setErr('ntp-err',e.message); }
+}
+
+async function submitTicket() {
+  const subj=V('nt-subj'),desc=V('nt-desc');
+  setErr('nt-err','');
+  if(!subj||!desc) return setErr('nt-err','Subject and description are required.');
+  try {
+    await POST('/tickets',{subject:subj,description:desc,category:V('nt-cat')||'Other',priority:V('nt-pri')||'Medium'});
+    closeOv('ov-new-ticket'); toast('Ticket submitted!');
+    document.getElementById('nt-subj').value=''; document.getElementById('nt-desc').value='';
+    if (Q('page-tickets').classList.contains('active')) fetchTickets();
+  } catch(e) { setErr('nt-err',e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// TICKET DETAIL
+// ═══════════════════════════════════════════════════
+async function openTicket(id) {
+  document.getElementById('td-id').textContent = 'Loading…';
+  document.getElementById('td-body').innerHTML = loading();
+  openOv('ov-ticket');
+  try {
+    const { ticket: t } = await GET('/tickets/' + id);
+    document.getElementById('td-id').textContent = t.id.slice(0,8) + ' — ' + t.subject;
+    document.getElementById('td-date').textContent = 'Submitted ' + fmtDate(t.created_at) + (t.creator?' by '+t.creator.name:'');
+
+    const isStaff = me.role !== 'user';
+    const isAdmin = me.role === 'admin';
+    let techs = [];
+    if (isStaff) { try { techs = (await GET('/users')).users.filter(u=>['technician','admin'].includes(u.role)); } catch {} }
+
+    const controls = isStaff ? `<div class="ctrl-box"><div class="ctrl-label">Controls</div>
+      <div class="ctrl-grid">
+        <div class="cf"><label>Status</label><select class="ctrl-sel" id="cs-status">
+          ${['Open','In Progress','Pending User','Resolved','Closed'].map(s=>`<option ${t.status===s?'selected':''}>${s}</option>`).join('')}
+        </select></div>
+        <div class="cf"><label>Assign To</label><select class="ctrl-sel" id="cs-assign">
+          <option value="">Unassigned</option>
+          ${techs.map(u=>`<option value="${u.id}" ${t.assigned_to===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}
+        </select></div>
+        ${isAdmin?`<div class="cf"><label>Priority</label><select class="ctrl-sel" id="cs-priority">
+          ${['Low','Medium','High','Critical'].map(p=>`<option ${t.priority===p?'selected':''}>${p}</option>`).join('')}
+        </select></div>`:''}
+        <div class="cf" style="display:flex;align-items:flex-end">
+          <button class="btn btn-dark btn-sm" style="width:100%" onclick="saveControls('${t.id}')">Save</button>
+        </div>
+      </div></div>` : '';
+
+    const attachHTML = t.attachments.length ? `<div style="margin-bottom:16px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">Attachments (${t.attachments.length})</div>
+      ${t.attachments.map(a=>`<div class="attach-item">
+        <div class="attach-ext">${a.original_name.split('.').pop().toUpperCase().slice(0,4)}</div>
+        <div class="attach-info"><div class="attach-name">${esc(a.original_name)}</div><div class="attach-size">${bytes(a.size_bytes)} · ${esc(a.uploader_name)}</div></div>
+        <a href="/api/tickets/${t.id}/attachments/${a.stored_name}" target="_blank" class="btn btn-out btn-sm">View</a>
+      </div>`).join('')}
+    </div>` : '';
+
+    const histHTML = t.history.length && isStaff ? `<div style="margin-top:16px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px">History</div>
+      ${t.history.map(h=>`<div class="audit-item">
+        <span class="audit-time">${rel(h.created_at)}</span>
+        <span class="audit-txt"><strong>${esc(h.actor_name||'System')}</strong> ${esc(h.action.replace(/_/g,' '))}${h.field?` · <strong>${h.field}</strong>`:''}${h.old_value&&h.new_value?` from "${esc(h.old_value)}" → "${esc(h.new_value)}"`:''}</span>
+      </div>`).join('')}
+    </div>` : '';
+
+    const commentsHTML = t.comments
+      .filter(c => !c.is_internal || isStaff)
+      .map(c=>`<div class="comment ${c.is_internal?'internal':''}">
+        <div class="cm-meta">
+          <span class="cm-author">${esc(c.author_name)}</span>
+          <span class="role-badge rb-${c.author_role}">${c.author_role}</span>
+          ${c.is_internal?`<span style="font-size:10px;background:var(--purple-bg);color:var(--purple-tx);padding:1px 6px;border-radius:20px;font-weight:600">internal</span>`:''}
+          <span class="cm-time">${rel(c.created_at)}</span>
+        </div>
+        <div class="cm-body">${esc(c.body)}</div>
+      </div>`).join('');
+
+    document.getElementById('td-body').innerHTML = `
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+        ${stBadge(t.status)} ${priBadge(t.priority)} <span class="tag">${t.category}</span> ${slaBadge(t.sla)}
+        ${t.sla_breached?`<span class="badge b-critical">⚠ SLA Breached</span>`:''}
+      </div>
+      <div class="detail-grid">
+        <div><div class="df-label">Requester</div><div class="df-value">${esc(t.creator?.name||'Unknown')}</div></div>
+        <div><div class="df-label">Assigned To</div><div class="df-value">${t.assignee?esc(t.assignee.name):'<span style="color:var(--tx3)">Unassigned</span>'}</div></div>
+        <div><div class="df-label">Created</div><div class="df-value">${fmtDate(t.created_at)}</div></div>
+        <div><div class="df-label">Updated</div><div class="df-value">${rel(t.updated_at)}</div></div>
+        ${t.due_at?`<div><div class="df-label">SLA Due</div><div class="df-value">${fmtDate(t.due_at)}</div></div>`:''}
+        ${t.resolved_at?`<div><div class="df-label">Resolved</div><div class="df-value">${fmtDate(t.resolved_at)}</div></div>`:''}
+      </div>
+      <div class="desc-box">${esc(t.description)}</div>
+      ${controls}
+      ${attachHTML}
+      ${isStaff?`<div style="margin-bottom:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Attach Files</div>
+        <div class="upload-zone" onclick="document.getElementById('fu-${t.id}').click()">
+          <input type="file" id="fu-${t.id}" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.zip" onchange="uploadFiles('${t.id}',this)">
+          <div style="font-size:13px;color:var(--tx2)">Click to upload files</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:4px">PDF, images, Office docs, ZIP · max 10MB</div>
+        </div>
+        <div id="up-status-${t.id}"></div>
+      </div>`:''}
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Comments (${t.comments.filter(c=>!c.is_internal||isStaff).length})</div>
+        <div id="cm-wrap">${commentsHTML||'<div style="font-size:13px;color:var(--tx3);padding:8px 0">No comments yet.</div>'}</div>
+        <div class="cm-input-row">
+          <textarea class="cm-ta" id="cm-text" placeholder="Write a comment…"></textarea>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button class="btn btn-dark btn-sm" onclick="postComment('${t.id}',false)">Reply</button>
+            ${isStaff?`<button class="btn btn-sm" style="background:var(--purple-bg);color:var(--purple-tx)" onclick="postComment('${t.id}',true)">Internal</button>`:''}
+          </div>
+        </div>
+      </div>
+      ${histHTML}`;
+  } catch(e) { document.getElementById('td-body').innerHTML = errBlock(e.message); }
+}
+
+async function saveControls(ticketId) {
+  const b = {};
+  const st=document.getElementById('cs-status'), as=document.getElementById('cs-assign'), pr=document.getElementById('cs-priority');
+  if (st) b.status = st.value;
+  if (as) b.assigned_to = as.value || null;
+  if (pr) b.priority = pr.value;
+  try {
+    await PATCH('/tickets/'+ticketId, b);
+    toast('Ticket updated'); closeOv('ov-ticket');
+    if (Q('page-tickets').classList.contains('active')) fetchTickets();
+    if (Q('page-my-queue').classList.contains('active')) renderMyQueue();
+    if (Q('page-dashboard').classList.contains('active')) renderDashboard();
+  } catch(e) { toast(e.message, true); }
+}
+
+async function postComment(ticketId, isInternal) {
+  const ta = document.getElementById('cm-text');
+  const body = ta.value.trim();
+  if (!body) return;
+  try {
+    const { comment: c } = await POST('/tickets/'+ticketId+'/comments', { body, is_internal: isInternal });
+    const wrap = document.getElementById('cm-wrap');
+    wrap.insertAdjacentHTML('beforeend', `<div class="comment ${c.is_internal?'internal':''}">
+      <div class="cm-meta">
+        <span class="cm-author">${esc(c.author_name)}</span>
+        <span class="role-badge rb-${c.author_role}">${c.author_role}</span>
+        ${c.is_internal?`<span style="font-size:10px;background:var(--purple-bg);color:var(--purple-tx);padding:1px 6px;border-radius:20px;font-weight:600">internal</span>`:''}
+        <span class="cm-time">just now</span>
+      </div><div class="cm-body">${esc(c.body)}</div></div>`);
+    ta.value = ''; toast('Comment posted');
+  } catch(e) { toast(e.message, true); }
+}
+
+async function uploadFiles(ticketId, input) {
+  const status = document.getElementById('up-status-'+ticketId);
+  if (!input.files.length) return;
+  status.innerHTML = `<div style="font-size:12px;color:var(--tx3);margin-top:8px">Uploading ${input.files.length} file(s)…</div>`;
+  const fd = new FormData();
+  for (const f of input.files) fd.append('files', f);
+  try {
+    const r = await fetch('/api/tickets/'+ticketId+'/attachments', { method:'POST', headers:{ Authorization:`Bearer ${token}` }, body:fd });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error||'Upload failed');
+    status.innerHTML = `<div style="font-size:12px;color:var(--green-tx);margin-top:8px">✓ ${d.attachments.length} file(s) uploaded</div>`;
+    toast('Files uploaded');
+    input.value = '';
+    setTimeout(() => openTicket(ticketId), 600);
+  } catch(e) { status.innerHTML = `<div style="font-size:12px;color:var(--red-tx);margin-top:8px">Upload failed: ${e.message}</div>`; }
+}
+
+// ═══════════════════════════════════════════════════
+// USERS (admin)
+// ═══════════════════════════════════════════════════
+async function renderUsers() {
+  const el = Q('page-users');
+  el.innerHTML = loading();
+  try {
+    const { users } = await GET('/users');
+    el.innerHTML = `
+      <div class="page-hdr">
+        <div><div class="page-title">Users</div><div class="page-sub">${users.length} accounts</div></div>
+        <button class="btn btn-dark" onclick="openOv('ov-add-user')">+ Add User</button>
+      </div>
+      <div class="card"><div style="overflow-x:auto"><table class="tbl" style="cursor:default">
+        <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Department</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${users.map(u=>`<tr>
+          <td><div style="display:flex;align-items:center;gap:10px">
+            <div class="avatar av-sm">${u.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div>
+            <span style="font-weight:500">${esc(u.name)}</span>
+          </div></td>
+          <td style="font-size:13px;color:var(--tx2)">${esc(u.email)}</td>
+          <td><select class="ctrl-sel" style="width:auto" onchange="patchUser('${u.id}',{role:this.value})">
+            <option value="user" ${u.role==='user'?'selected':''}>User</option>
+            <option value="technician" ${u.role==='technician'?'selected':''}>Technician</option>
+            <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+          </select></td>
+          <td style="font-size:13px;color:var(--tx2)">${esc(u.department||'—')}</td>
+          <td style="font-size:13px;color:var(--tx2)">${esc(u.phone||'—')}</td>
+          <td><span class="badge ${u.is_active?'b-resolved':'b-closed'}">${u.is_active?'Active':'Inactive'}</span></td>
+          <td><button class="btn btn-sm ${u.is_active?'btn-red':'btn-green'}" onclick="toggleUser('${u.id}',${u.is_active?0:1})">${u.is_active?'Deactivate':'Activate'}</button></td>
+        </tr>`).join('')}
+        </tbody>
+      </table></div></div>`;
+  } catch(e) { el.innerHTML = errBlock(e.message); }
+}
+
+async function patchUser(id, data) {
+  try { await PATCH('/users/'+id, data); toast('Updated'); } catch(e) { toast(e.message,true); renderUsers(); }
+}
+async function toggleUser(id, active) {
+  try { await PATCH('/users/'+id,{is_active:active===1}); toast(active?'User activated':'User deactivated'); renderUsers(); } catch(e) { toast(e.message,true); }
+}
+async function createUser() {
+  const name=V('au-name'),email=V('au-email'),pass=V('au-pass'),dept=V('au-dept'),role=V('au-role'),phone=V('au-phone');
+  setErr('au-err','');
+  if(!name||!email||!pass) return setErr('au-err','Name, email and password are required.');
+  try {
+    await POST('/users',{name,email,password:pass,department:dept,role,phone});
+    closeOv('ov-add-user'); toast('User created'); renderUsers();
+    ['au-name','au-email','au-pass','au-dept','au-phone'].forEach(id=>document.getElementById(id).value='');
+  } catch(e) { setErr('au-err',e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// REPORTS (admin)
+// ═══════════════════════════════════════════════════
+async function renderReports() {
+  const el = Q('page-reports');
+  el.innerHTML = loading();
+  try {
+    const r = await GET('/reports/overview');
+    const s = r.summary, total = s.total || 1;
+    el.innerHTML = `
+      <div class="page-hdr"><div><div class="page-title">Reports</div><div class="page-sub">Analytics and metrics</div></div></div>
+      <div class="stats s4">
+        ${stat('Total Tickets',s.total)}${stat('Resolution Rate',s.resolution_rate+'%','Resolved+Closed','c-green')}
+        ${stat('Avg Resolution',s.avg_resolution_hours!=null?s.avg_resolution_hours+'h':'—','Hours to resolve')}
+        ${stat('SLA Breached',s.sla_breached,'Active',s.sla_breached>0?'c-red':'')}
+      </div>
+      <div class="stats s4">
+        ${stat('Created Today',s.today)}${stat('This Week',s.this_week)}
+        ${stat('Unassigned',s.unassigned,'Open',s.unassigned>0?'c-amber':'')}${stat('Critical',s.critical,'Active',s.critical>0?'c-red':'')}
+      </div>
+      <div class="two-col">
+        ${barChart('By Category',r.byCategory,'category','count',total)}
+        ${barChart('By Priority',r.byPriority,'priority','count',total)}
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title">SLA Configuration</div></div>
+        <div class="card-body"><table class="tbl" style="cursor:default"><thead><tr><th>Priority</th><th>Window</th></tr></thead>
+          <tbody>${Object.entries(r.slaConfig).map(([p,h])=>`<tr><td>${priBadge(p)}</td><td style="font-size:13.5px">${h} hours</td></tr>`).join('')}</tbody>
+        </table></div>
+      </div>
+      <div class="card"><div class="card-hdr"><div class="card-title">Daily Volume — Last 14 Days</div></div>
+        <div class="card-body">${sparkline(r.trend)}</div>
+      </div>`;
+  } catch(e) { el.innerHTML = errBlock(e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════
+async function renderNotifications() {
+  const el = Q('page-notifications');
+  el.innerHTML = loading();
+  try {
+    const { notifications: ns, unread } = await GET('/notifications');
+    el.innerHTML = `
+      <div class="page-hdr">
+        <div><div class="page-title">Notifications</div><div class="page-sub">${unread} unread</div></div>
+        <button class="btn btn-out" onclick="markAllRead()">Mark all read</button>
+      </div>
+      <div class="card" style="overflow:hidden">
+        ${ns.length ? ns.map(n=>`<div class="notif ${!n.is_read?'unread':''}" onclick="readNotif('${n.id}','${n.ticket_id||''}')">
+          <div class="notif-dot ${n.is_read?'read':''}"></div>
+          <div><div class="notif-title">${esc(n.title)}</div><div class="notif-body">${esc(n.body)}</div><div class="notif-time">${rel(n.created_at)}</div></div>
+        </div>`).join('') : '<div class="empty" style="padding:48px"><p>No notifications</p></div>'}
+      </div>`;
+    updateNotifBadge(0);
+  } catch(e) { el.innerHTML = errBlock(e.message); }
+}
+
+async function readNotif(id, ticketId) {
+  await PATCH('/notifications/'+id+'/read',{}).catch(()=>{});
+  pollNotifs();
+  if (ticketId) openTicket(ticketId);
+}
+async function markAllRead() {
+  await PATCH('/notifications/read-all',{}).catch(()=>{});
+  toast('All marked as read'); renderNotifications(); updateNotifBadge(0);
+}
+async function pollNotifs() {
+  try { const {unread} = await GET('/notifications'); updateNotifBadge(unread); } catch {}
+}
+function updateNotifBadge(n) {
+  const b = document.getElementById('notif-badge');
+  if (!b) return;
+  if (n > 0) { b.textContent=n; b.style.display='inline'; } else b.style.display='none';
+}
+
+// ═══════════════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════════════
+function renderProfile() {
+  const ini = me.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  Q('page-profile').innerHTML = `
+    <div class="page-hdr"><div><div class="page-title">Profile</div><div class="page-sub">Your account settings</div></div></div>
+    <div style="max-width:500px">
+      <div class="card"><div class="card-body">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px">
+          <div class="avatar av-lg">${ini}</div>
+          <div>
+            <div style="font-size:18px;font-weight:600">${esc(me.name)}</div>
+            <div style="font-size:13px;color:var(--tx2)">${esc(me.email)}</div>
+            <div style="margin-top:6px"><span class="role-badge rb-${me.role}">${me.role}</span></div>
+          </div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--bdr);margin-bottom:20px">
+        <div class="form-group"><label class="form-label">Display Name</label><input class="form-input" id="p-name" value="${esc(me.name)}"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Department</label><input class="form-input" id="p-dept" value="${esc(me.department||'')}"></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="p-phone" value="${esc(me.phone||'')}"></div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--bdr);margin:16px 0">
+        <div style="font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:12px">Change Password</div>
+        <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" id="p-cur-pass" placeholder="Enter current password"></div>
+        <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="p-new-pass" placeholder="Min 8 characters"></div>
+        <div class="err" id="p-err"></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn btn-dark" onclick="saveProfile()">Save Changes</button></div>
+      </div></div>
+    </div>`;
+}
+
+async function saveProfile() {
+  const name=V('p-name'),dept=V('p-dept'),phone=V('p-phone'),cur=V('p-cur-pass'),np=V('p-new-pass');
+  setErr('p-err','');
+  const body = {};
+  if (name) body.name=name;
+  if (dept!==undefined) body.department=dept;
+  if (phone!==undefined) body.phone=phone;
+  if (np) {
+    if (!cur) return setErr('p-err','Enter your current password to change it.');
+    if (np.length<8) return setErr('p-err','New password must be at least 8 characters.');
+    body.current_password=cur; body.new_password=np;
+  }
+  try {
+    const { user } = await PATCH('/auth/me', body);
+    me = user;
+    document.getElementById('sb-name').textContent = user.name;
+    document.getElementById('sb-av').textContent = user.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    toast('Profile saved');
+    document.getElementById('p-cur-pass').value='';
+    document.getElementById('p-new-pass').value='';
+  } catch(e) { setErr('p-err',e.message); }
+}
+
+// ═══════════════════════════════════════════════════
+// HELPERS — UI
+// ═══════════════════════════════════════════════════
+function stat(label,value,sub='',cls='') {
+  return `<div class="stat ${cls}"><div class="stat-lbl">${label}</div><div class="stat-val">${value}</div>${sub?`<div class="stat-sub">${sub}</div>`:''}</div>`;
+}
+function barChart(title, data, lk, ck, total) {
+  const colors=['var(--blue)','var(--amber)','var(--green)','var(--red)','var(--purple)','var(--tx3)'];
+  return `<div class="card"><div class="card-hdr"><div class="card-title">${title}</div></div><div class="card-body" style="padding-top:10px">
+    ${data.map((d,i)=>{ const pct=total>0?Math.round(d[ck]/total*100):0; return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px"><span>${d[lk]}</span><span class="mono" style="color:var(--tx2)">${d[ck]} (${pct}%)</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${colors[i%colors.length]}"></div></div>
+    </div>`; }).join('')}
+  </div></div>`;
+}
+function sparkline(data) {
+  const max = Math.max(...data.map(d=>d.count),1);
+  return `<div style="display:flex;align-items:flex-end;gap:3px;height:72px">
+    ${data.map(d=>`<div class="sparkbar" title="${d.date}: ${d.count}" style="height:${Math.max((d.count/max)*72,d.count>0?4:0)}px;opacity:${d.count?1:.15}"></div>`).join('')}
+  </div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);margin-top:6px"><span>${data[0]?.date}</span><span>${data[data.length-1]?.date}</span></div>`;
+}
+function miniTable(tickets, emptyMsg) {
+  if (!tickets.length) return `<div class="empty" style="padding:28px"><p>${emptyMsg}</p></div>`;
+  return `<div style="overflow-x:auto"><table class="tbl clickable"><thead><tr><th>ID</th><th>Subject</th><th>Priority</th><th>Status</th></tr></thead>
+    <tbody>${tickets.map(t=>`<tr onclick="openTicket('${t.id}')">
+      <td><span class="mono">${t.id.slice(0,8)}</span></td>
+      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">${esc(t.subject)}</td>
+      <td>${priBadge(t.priority)}</td><td>${stBadge(t.status)}</td>
+    </tr>`).join('')}</tbody></table></div>`;
+}
+function fsel(id, placeholder, key, opts) {
+  return `<select class="fi fi-sel" id="${id}"><option value="">${placeholder}</option>${opts.map(o=>`<option value="${o}" ${tF[key]===o?'selected':''}>${o}</option>`).join('')}</select>`;
+}
+function stBadge(s) { return `<span class="badge ${{Open:'b-open','In Progress':'b-progress','Pending User':'b-pending',Resolved:'b-resolved',Closed:'b-closed'}[s]||'b-open'}">${s}</span>`; }
+function priBadge(p) { return `<span class="badge ${{Critical:'b-critical',High:'b-high',Medium:'b-medium',Low:'b-low'}[p]||'b-low'}">${p}</span>`; }
+function slaBadge(sla) { if(!sla||sla.status==='none') return ''; return `<span class="sla sla-${sla.status} ${['breached','critical'].includes(sla.status)?'pulse':''}">${sla.label}</span>`; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function rel(ts) { if(!ts)return'—'; const d=Math.floor(Date.now()/1000)-ts; if(d<60)return'just now'; if(d<3600)return Math.floor(d/60)+'m ago'; if(d<86400)return Math.floor(d/3600)+'h ago'; return Math.floor(d/86400)+'d ago'; }
+function fmtDate(ts) { if(!ts)return'—'; return new Date(ts*1000).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function bytes(b) { if(b<1024)return b+'B'; if(b<1048576)return(b/1024).toFixed(1)+'KB'; return(b/1048576).toFixed(1)+'MB'; }
+function loading() { return `<div class="loading"><div class="spin"></div></div>`; }
+function errBlock(msg) { return `<div style="padding:20px;color:var(--red);font-size:13px">Error: ${esc(msg)}</div>`; }
+function V(id) { const el=document.getElementById(id); return el?(el.value.trim()):''; }
+function Q(id) { return document.getElementById(id); }
+function setErr(id,msg) { const el=document.getElementById(id); if(el){el.textContent=msg; el.style.display=msg?'block':'none';} }
+function setBusy(id,busy,label) { const el=Q(id); if(el){el.disabled=busy;el.textContent=label;} }
+function show(id) { Q(id).classList.add('active'); }
+function hide(id) { Q(id).classList.remove('active'); }
+function openOv(id) { Q(id).classList.add('open'); }
+function closeOv(id) { Q(id).classList.remove('open'); }
+
+let _toastTimer;
+function toast(msg, isErr=false) {
+  const t=Q('toast'); t.textContent=msg;
+  t.className='toast show'+(isErr?' err-toast':'');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// Close overlays on backdrop click
+document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',e=>{ if(e.target===el) el.classList.remove('open'); }));
+// Enter to login
+document.getElementById('l-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('r-pass').addEventListener('keydown',e=>{ if(e.key==='Enter') doRegister(); });
+
+// ═══════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════
+(async () => {
+  if (token) {
+    try {
+      me = (await GET('/auth/me')).user;
+      launchApp();
+    } catch { localStorage.removeItem('hd_token'); token=null; show('auth-screen'); }
+  } else { show('auth-screen'); }
+  setInterval(pollNotifs, 30000);
+})();
+</script>
+</body>
+</html>
